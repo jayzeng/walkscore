@@ -2,6 +2,19 @@
 Quick seach on pypi and GitHub show no official python bindings. To keep our code clean, we decide to implement this simple, light-weight binding
 as a standalone module.
 
+# How to install?
+It is available on pip and GitHub,
+
+```
+pip install walkscore-api-binding
+```
+
+or
+```
+git clone git@github.com:jayzeng/walkscore.git
+python setup.py install
+```
+
 # Features:
 - Auto escape address
 - Inject Etag to enable caching
@@ -40,6 +53,9 @@ as a standalone module.
 - API key can be requested from http://www.walkscore.com/professional/api-sign-up.php
 - Lat & Long are required
 - Key is rate limited (see plans for details)
+
+### Found issues? Feature requests?
+Sure, please send them to: https://github.com/jayzeng/walkscore/issues
 
 ### More details:
 See http://www.walkscore.com/professional/api.php
