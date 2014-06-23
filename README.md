@@ -11,7 +11,7 @@ pip install walkscore-api-binding
 
 or
 ```
-git clone git@github.com:jayzeng/walkscore.git
+git clone git@github.com:zipdigs/walkscore.git
 python setup.py install
 ```
 
@@ -55,7 +55,7 @@ python setup.py install
 - Key is rate limited (see plans for details)
 
 ### Found issues? Feature requests?
-Sure, please send them to: https://github.com/jayzeng/walkscore/issues
+Sure, please send them to: https://github.com/zipdigs/walkscore/issues
 
 ### More details:
 See http://www.walkscore.com/professional/api.php
