@@ -1,4 +1,4 @@
-from api.walkscore import WalkScore
+from walkscore.api import WalkScore
 
 def main():
     apiKey='yourapikey'
