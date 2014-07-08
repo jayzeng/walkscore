@@ -28,6 +28,9 @@ python setup.py install
 - urllib2
 - nose (only if you need to run test)
 
+### Example code:
+See https://github.com/zipdigs/walkscore/blob/master/walkscore-api-binding/example.py
+
 ### Example output:
 ```
 {
