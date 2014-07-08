@@ -21,6 +21,9 @@ class InvalidApiKeyException(Exception):
 class InvalidLatLongException(Exception):
     pass
 
+class ExceedQuotaException(Exception):
+    pass
+
 class WalkScore:
     apiUrl = 'http://api.walkscore.com/score?format'
 
@@ -51,6 +54,9 @@ class WalkScore:
 
         if responseStatusCode == 200 and jsonRespStatusCode == 40:
             raise InvalidApiKeyException
+
+        if responseStatusCode == 200 and jsonRespStatusCode == 41:
+            raise ExceedQuotaException
 
         if responseStatusCode == 404 and jsonRespStatusCode == 30:
             raise InvalidLatLongException
