@@ -52,6 +52,13 @@ See https://github.com/zipdigs/walkscore/blob/master/walkscore-api-binding/examp
 
 ```InvalidLatLongException``` is thrown when lat and/or longitude are invalid or empty
 
+```ExceedQuotaException``` is thrown when api key exceeds daily quota
+
+```ScoreUnavailableException``` is thrown when a walk score is unavailable
+
+```InternalServerException``` is thrown when internal server error occurs
+
+
 ### Note:
 - API key can be requested from http://www.walkscore.com/professional/api-sign-up.php
 - Lat & Long are required
