@@ -29,7 +29,7 @@ python setup.py install
 - nose (only if you need to run test)
 
 ### Example code:
-See https://github.com/zipdigs/walkscore/blob/master/walkscore-api-binding/example.py
+See https://github.com/zipdigs/walkscore/blob/master/example/example.py
 
 ### Example output:
 ```
