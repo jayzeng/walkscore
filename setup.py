@@ -6,6 +6,7 @@ setup(
   author = 'Jay Zeng',
   author_email = 'jayzeng@jay-zeng.com',
   url = 'https://github.com/zipdigs/walkscore',
+  packages = ['walkscore-api-binding', 'walkscore-api-binding/api'],
   download_url = 'https://github.com/zipdigs/walkscore/releases/tag/0.1',
   keywords = ['walkscore', 'api', 'binding'],
   classifiers = [],
