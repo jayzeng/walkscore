@@ -24,6 +24,18 @@ class InvalidLatLongException(Exception):
 class ExceedQuotaException(Exception):
     pass
 
+class ScoreUnavailableException(Exception):
+    pass
+
+class InternalServerException(Exception):
+    pass
+
+"""
+Your IP is blocked
+"""
+class IpBlockedException(Exception):
+    pass
+
 class WalkScore:
     apiUrl = 'http://api.walkscore.com/score?format'
 
@@ -52,13 +64,24 @@ class WalkScore:
         jsonResp = json.load(response)
         jsonRespStatusCode = jsonResp['status']
 
+        # Error handling
+        # @see http://www.walkscore.com/professional/api.php
         if responseStatusCode == 200 and jsonRespStatusCode == 40:
             raise InvalidApiKeyException
+
+        if responseStatusCode == 200 and jsonRespStatusCode == 2:
+            raise ScoreUnavailableException
 
         if responseStatusCode == 200 and jsonRespStatusCode == 41:
             raise ExceedQuotaException
 
+        if responseStatusCode == 403 and jsonRespStatusCode == 42:
+            raise IpBlockedException
+
         if responseStatusCode == 404 and jsonRespStatusCode == 30:
             raise InvalidLatLongException
+
+        if responseStatusCode == 500 and jsonRespStatusCode == 31:
+            raise InternalServerException
 
         return jsonResp
