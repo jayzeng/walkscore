@@ -11,7 +11,7 @@ pip install walkscore-api-binding
 
 or
 ```
-git clone git@github.com:zipdigs/walkscore.git
+git clone git@github.com:knockrentals/walkscore.git
 python setup.py install
 ```
 
@@ -29,7 +29,7 @@ python setup.py install
 - nose (only if you need to run test)
 
 ### Example code:
-See https://github.com/zipdigs/walkscore/blob/master/walkscore-api-binding/example.py
+See https://github.com/knockrentals/walkscore/blob/master/walkscore-api-binding/example.py
 
 ### Example output:
 ```
@@ -43,7 +43,7 @@ See https://github.com/zipdigs/walkscore/blob/master/walkscore-api-binding/examp
    "snapped_lon":-122.3295,
    "more_info_link":"http://www.walkscore.com/how-it-works.shtml",
    "logo_url":"http://cdn.walk.sc/images/api-logo.gif",
-   "ws_link":"http://www.walkscore.com/score/1119%208th%20Avenue%20Seattle%20WA%2098101/lat=47.6085/lng=-122.3295/?utm_source=zipdigs.com&utm_medium=ws_api&utm_campaign=ws_api"
+   "ws_link":"http://www.walkscore.com/score/1119%208th%20Avenue%20Seattle%20WA%2098101/lat=47.6085/lng=-122.3295"
 }
 ```
 
@@ -65,7 +65,7 @@ See https://github.com/zipdigs/walkscore/blob/master/walkscore-api-binding/examp
 - Key is rate limited (see plans for details)
 
 ### Found issues? Feature requests?
-Sure, please send them to: https://github.com/zipdigs/walkscore/issues
+Sure, please send them to: https://github.com/knockrentals/walkscore/issues
 
 ### More details:
 See http://www.walkscore.com/professional/api.php

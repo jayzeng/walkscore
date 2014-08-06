@@ -8,10 +8,10 @@ setup(
   description = 'Unofficial WalkScore API binding',
   author = 'Jay Zeng',
   author_email = 'jayzeng@jay-zeng.com',
-  url = 'https://github.com/zipdigs/walkscore',
+  url = 'https://github.com/knockrentals/walkscore',
   packages = find_packages(),
   download_url = (
-      'https://github.com/zipdigs/walkscore/releases/tag/%s' % version
+      'https://github.com/knockrentals/walkscore/releases/tag/%s' % version
   ),
   keywords = ['walkscore', 'api', 'binding'],
   classifiers = [
