@@ -1,6 +1,5 @@
-# Simple Python API wrapper for WalkScore.com
-Quick seach on pypi and GitHub show no official python bindings. To keep our code clean, we decide to implement this simple, light-weight binding
-as a standalone module.
+# WalkScore Python API binding
+No official Python bindings on Pypi and GitHub, we decided to write a lightweight stand-alone module to keep our code base clean.
 
 # How to install?
 It is available on pip and GitHub,
@@ -61,8 +60,8 @@ See https://github.com/knockrentals/walkscore/blob/master/example/example.py
 
 ### Note:
 - API key can be requested from http://www.walkscore.com/professional/api-sign-up.php
-- Lat & Long are required
-- Key is rate limited (see plans for details)
+- Address (incomplete address may yield unpleasant result), latitude and longitude are required
+- API Key is rate limited (see plans for details)
 
 ### Found issues? Feature requests?
 Sure, please send them to: https://github.com/knockrentals/walkscore/issues
