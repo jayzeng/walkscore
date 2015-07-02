@@ -5,7 +5,7 @@ def main():
     walkscore = WalkScore(apiKey)
 
     address='1119 8th Avenue Seattle WA 98101'
-    lat =47.6085
+    lat=47.6085
     long=-122.3295
     print walkscore.makeRequest(address, lat, long)
 

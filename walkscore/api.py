@@ -15,25 +15,32 @@ class DefaultErrorHandler(urllib2.HTTPDefaultErrorHandler):
         result.status = code
         return result
 
-class InvalidApiKeyException(Exception):
+class BaseException(Exception):
+    def __init__(self, **kwargs):
+        super(Exception, self).__init__(kwargs)
+
+class InvalidApiKeyException(BaseException):
     pass
 
-class InvalidLatLongException(Exception):
+class InvalidLatLongException(BaseException):
     pass
 
-class ExceedQuotaException(Exception):
+class ExceedQuotaException(BaseException):
     pass
 
-class ScoreUnavailableException(Exception):
+"""
+Walk score needs more time, check back later
+"""
+class ScoreBeingCalculatedException(BaseException):
     pass
 
-class InternalServerException(Exception):
+class InternalServerException(BaseException):
     pass
 
 """
 Your IP is blocked
 """
-class IpBlockedException(Exception):
+class IpBlockedException(BaseException):
     pass
 
 class WalkScore:
@@ -67,21 +74,21 @@ class WalkScore:
         # Error handling
         # @see http://www.walkscore.com/professional/api.php
         if responseStatusCode == 200 and jsonRespStatusCode == 40:
-            raise InvalidApiKeyException
+            raise InvalidApiKeyException(message="Your API is invalid", raw=jsonResp, status_code=responseStatusCode)
 
         if responseStatusCode == 200 and jsonRespStatusCode == 2:
-            raise ScoreUnavailableException
+            raise ScoreBeingCalculatedException(message="walkscore is unavailable, please try again later", raw=jsonResp, status_code=responseStatusCode)
 
         if responseStatusCode == 200 and jsonRespStatusCode == 41:
-            raise ExceedQuotaException
+            raise ExceedQuotaException(message="You have exceeded API limit", raw=jsonResp, status_code=responseStatusCode)
 
         if responseStatusCode == 403 and jsonRespStatusCode == 42:
-            raise IpBlockedException
+            raise IpBlockedException(message="Your IP is blocked by WalkScore", raw=jsonResp, status_code=responseStatusCode)
 
         if responseStatusCode == 404 and jsonRespStatusCode == 30:
-            raise InvalidLatLongException
+            raise InvalidLatLongException(message="Invalid latitude and/or longitude", raw=jsonResp, status_code=responseStatusCode)
 
         if responseStatusCode == 500 and jsonRespStatusCode == 31:
-            raise InternalServerException
+            raise InternalServerException(message="Walk Score API internal error", raw=jsonResp, status_code=responseStatusCode)
 
         return jsonResp
