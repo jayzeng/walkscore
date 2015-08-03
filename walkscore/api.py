@@ -25,6 +25,15 @@ class InvalidApiKeyException(BaseException):
 class InvalidLatLongException(BaseException):
     pass
 
+class InvalidApiResponseException(BaseException):
+    pass
+
+class InvalidApiCallException(BaseException):
+    pass
+
+class InvalidApiParamsException(BaseException):
+    pass
+
 class ExceedQuotaException(BaseException):
     pass
 
@@ -43,15 +52,9 @@ Your IP is blocked
 class IpBlockedException(BaseException):
     pass
 
-class WalkScore:
-    apiUrl = 'http://api.walkscore.com/score?format'
 
-    def __init__(self, apiKey, format = 'json'):
-        self.apiKey = apiKey
-        self.format = format
-
-    def makeRequest(self, address, lat = '', long = ''):
-        url = '%s=%s&%s&lat=%s&lon=%s&wsapikey=%s' % (self.apiUrl, self.format, urllib.urlencode({'address': address}), lat, long, self.apiKey)
+class ApiBase:
+    def _makeRequest(self, url):
         request = urllib2.Request(url)
         opener = urllib2.build_opener(DefaultErrorHandler())
         first = opener.open(request)
@@ -63,12 +66,21 @@ class WalkScore:
         request.add_header('If-Modified-Since', first.headers.get('Date'))
 
         response = opener.open(request)
-
-        # some error handling
         responseStatusCode = response.getcode()
 
-        # jsonify response
-        jsonResp = json.load(response)
+        return response, responseStatusCode
+
+
+class WalkScore(ApiBase):
+    apiUrl = 'http://api.walkscore.com/score?format'
+
+    def __init__(self, apiKey, format = 'json'):
+        self.apiKey = apiKey
+        self.format = format
+
+    def makeRequest(self, address, lat = '', long = ''):
+        url = '%s=%s&%s&lat=%s&lon=%s&wsapikey=%s' % (self.apiUrl, self.format, urllib.urlencode({'address': address}), lat, long, self.apiKey)
+        jsonResp, responseStatusCode = self._makeRequest(url)
         jsonRespStatusCode = jsonResp['status']
 
         # Error handling
@@ -90,5 +102,70 @@ class WalkScore:
 
         if responseStatusCode == 500 and jsonRespStatusCode == 31:
             raise InternalServerException(message="Walk Score API internal error", raw=jsonResp, status_code=responseStatusCode)
+
+        return jsonResp
+
+import urllib
+
+class TransitScore(ApiBase):
+    # Transit score API prefix
+    apiUrl = 'http://transit.walkscore.com/transit/%s/?'
+
+    def __init__(self, apiKey):
+        self.apiKey = apiKey
+
+    def api_call_map(self):
+        return {
+            'score': {
+                'route': 'score',
+                'required': ['lat', 'lon', 'city', 'state']
+            },
+            'stop_search': {
+                'route': 'search/stops',
+                'required': ['lat', 'lon']
+            },
+            'network_search': {
+                'route': 'search/network',
+                'required': ['lat', 'lon']
+            },
+            'stop_detail': {
+                'route': 'stop/ID',
+                'required': ['ID']
+            },
+            'route_detail': {
+                'route': 'route/ID',
+                'required': ['ID']
+            },
+            'supported_cities': {
+                'route': 'supported/cities',
+                'required': []
+            }
+        }
+
+    def makeRequest(self, call_name, params):
+        api_map = self.api_call_map()
+        if call_name not in api_map.keys():
+            raise InvalidApiCallException(message='Invalid API call %s. Available: %s' % (call_name, ','.join(api_map.keys())))
+
+        url = self.apiUrl % api_map[call_name]['route']
+
+        # have required params?
+        param_keys = set(params.keys())
+        required_params = set(api_map[call_name]['required'])
+
+        if param_keys != required_params:
+            raise InvalidApiParamsException(message='Missing required param(s): %s' % ','.join(list(required_params - param_keys)))
+
+        params.update({'wsapikey':self.apiKey})
+        url_params = urllib.urlencode(params)
+        url = url + url_params
+
+        response, responseStatusCode = self._makeRequest(url)
+
+        if responseStatusCode != 200:
+            raise InvalidApiResponseException(message="API response error", raw=jsonResp, status_code=responseStatusCode)
+
+        # jsonify response
+        jsonResp = json.load(response)
 
         return jsonResp
