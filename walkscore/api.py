@@ -28,10 +28,13 @@ class InvalidLatLongException(BaseException):
 class InvalidApiResponseException(BaseException):
     pass
 
-class ExceedQuotaException(BaseException):
+class InvalidApiCallException(BaseException):
     pass
 
-class InvalidApiCallException(BaseException):
+class InvalidApiParamsException(BaseException):
+    pass
+
+class ExceedQuotaException(BaseException):
     pass
 
 """
@@ -111,22 +114,48 @@ class TransitScore(ApiBase):
     def __init__(self, apiKey):
         self.apiKey = apiKey
 
-    def call_map(self):
+    def api_call_map(self):
         return {
-            'score': 'score',
-            'stop_search': 'search/stops',
-            'network_search': 'search/network',
-            'stop_detail': 'stop/ID',
-            'route_detail': 'route/ID',
-            'supported_cities': 'supported/cities'
+            'score': {
+                'route': 'score',
+                'required': ['lat', 'lon', 'city', 'state']
+            },
+            'stop_search': {
+                'route': 'search/stops',
+                'required': ['lat', 'lon']
+            },
+            'network_search': {
+                'route': 'search/network',
+                'required': ['lat', 'lon']
+            },
+            'stop_detail': {
+                'route': 'stop/ID',
+                'required': ['ID']
+            },
+            'route_detail': {
+                'route': 'route/ID',
+                'required': ['ID']
+            },
+            'supported_cities': {
+                'route': 'supported/cities',
+                'required': []
+            }
         }
 
     def makeRequest(self, call_name, params):
-        api_map = self.call_map()
+        api_map = self.api_call_map()
         if call_name not in api_map.keys():
-            raise InvalidApiCallException('%s is not a valid API. Available calls: %s' % (call_name, ','.join(api_map.keys())))
+            raise InvalidApiCallException(message='Invalid API call %s. Available: %s' % (call_name, ','.join(api_map.keys())))
 
-        url = self.apiUrl % api_map[call_name]
+        url = self.apiUrl % api_map[call_name]['route']
+
+        # have required params?
+        param_keys = set(params.keys())
+        required_params = set(api_map[call_name]['required'])
+
+        if param_keys != required_params:
+            raise InvalidApiParamsException(message='Missing required param(s): %s' % ','.join(list(required_params - param_keys)))
+
         params.update({'wsapikey':self.apiKey})
         url_params = urllib.urlencode(params)
         url = url + url_params
