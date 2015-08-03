@@ -15,7 +15,7 @@ python setup.py install
 ```
 
 # Features:
-- Supports Walk Score API and Transit Score API
+- Supports Walk Score API (https://www.walkscore.com/professional/walk-score-apis.php) and Transit Score API (https://www.walkscore.com/professional/public-transit-api.php)
 - Auto escape address
 - Inject Etag to enable caching
 - JSON support (XML support will come when there is a need)
