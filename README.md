@@ -15,6 +15,7 @@ python setup.py install
 ```
 
 # Features:
+- Supports Walk Score API and Transit Score API
 - Auto escape address
 - Inject Etag to enable caching
 - JSON support (XML support will come when there is a need)
@@ -28,7 +29,7 @@ python setup.py install
 - nose (only if you need to run test)
 
 ### Example code:
-See https://github.com/knockrentals/walkscore/blob/master/example/example.py
+See https://github.com/knockrentals/walkscore/blob/master/example/
 
 ### Example output:
 ```

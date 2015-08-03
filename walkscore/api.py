@@ -28,6 +28,9 @@ class InvalidLatLongException(BaseException):
 class ExceedQuotaException(BaseException):
     pass
 
+class InvalidApiCallException(BaseException):
+    pass
+
 """
 Walk score needs more time, check back later
 """
@@ -90,5 +93,50 @@ class WalkScore:
 
         if responseStatusCode == 500 and jsonRespStatusCode == 31:
             raise InternalServerException(message="Walk Score API internal error", raw=jsonResp, status_code=responseStatusCode)
+
+        return jsonResp
+
+import urllib
+
+class TransitScore:
+    # Transit score API prefix
+    apiUrl = 'http://transit.walkscore.com/transit/%s/?'
+
+    def __init__(self, apiKey):
+        self.apiKey = apiKey
+
+    def call_map(self):
+        return {
+            'score': 'score',
+            'stop_search': 'search/stops',
+            'network_search': 'search/network',
+            'stop_detail': 'stop/ID',
+            'route_detail': 'route/ID',
+            'supported_cities': 'supported/cities'
+        }
+
+    def makeRequest(self, call_name, params):
+        api_map = self.call_map()
+        if call_name not in api_map.keys():
+            raise InvalidApiCallException('%s is not a valid API. Available calls: %s' % (call_name, ','.join(api_map.keys())))
+
+        url = self.apiUrl % api_map[call_name]
+        params.update({'wsapikey':self.apiKey})
+        url_params = urllib.urlencode(params)
+
+        request = urllib2.Request(url + url_params)
+        opener = urllib2.build_opener(DefaultErrorHandler())
+        first = opener.open(request)
+
+        first_datastream = first.read()
+
+        # Append caching headers
+        request.add_header('If-None-Match', first.headers.get('ETag'))
+        request.add_header('If-Modified-Since', first.headers.get('Date'))
+
+        response = opener.open(request)
+
+        # jsonify response
+        jsonResp = json.load(response)
 
         return jsonResp
