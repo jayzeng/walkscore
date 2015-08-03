@@ -25,6 +25,9 @@ class InvalidApiKeyException(BaseException):
 class InvalidLatLongException(BaseException):
     pass
 
+class InvalidApiResponseException(BaseException):
+    pass
+
 class ExceedQuotaException(BaseException):
     pass
 
@@ -59,7 +62,11 @@ class ApiBase:
         request.add_header('If-None-Match', first.headers.get('ETag'))
         request.add_header('If-Modified-Since', first.headers.get('Date'))
 
-        return opener.open(request)
+        response = opener.open(request)
+        responseStatusCode = response.getcode()
+
+        return response, responseStatusCode
+
 
 class WalkScore(ApiBase):
     apiUrl = 'http://api.walkscore.com/score?format'
@@ -70,7 +77,7 @@ class WalkScore(ApiBase):
 
     def makeRequest(self, address, lat = '', long = ''):
         url = '%s=%s&%s&lat=%s&lon=%s&wsapikey=%s' % (self.apiUrl, self.format, urllib.urlencode({'address': address}), lat, long, self.apiKey)
-        jsonResp = self._makeRequest(url)
+        jsonResp, responseStatusCode = self._makeRequest(url)
         jsonRespStatusCode = jsonResp['status']
 
         # Error handling
@@ -124,7 +131,10 @@ class TransitScore(ApiBase):
         url_params = urllib.urlencode(params)
         url = url + url_params
 
-        response = self._makeRequest(url)
+        response, responseStatusCode = self._makeRequest(url)
+
+        if responseStatusCode != 200:
+            raise InvalidApiResponseException(message="API response error", raw=jsonResp, status_code=responseStatusCode)
 
         # jsonify response
         jsonResp = json.load(response)
