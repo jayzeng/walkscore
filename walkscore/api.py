@@ -46,15 +46,9 @@ Your IP is blocked
 class IpBlockedException(BaseException):
     pass
 
-class WalkScore:
-    apiUrl = 'http://api.walkscore.com/score?format'
 
-    def __init__(self, apiKey, format = 'json'):
-        self.apiKey = apiKey
-        self.format = format
-
-    def makeRequest(self, address, lat = '', long = ''):
-        url = '%s=%s&%s&lat=%s&lon=%s&wsapikey=%s' % (self.apiUrl, self.format, urllib.urlencode({'address': address}), lat, long, self.apiKey)
+class ApiBase:
+    def _makeRequest(self, url):
         request = urllib2.Request(url)
         opener = urllib2.build_opener(DefaultErrorHandler())
         first = opener.open(request)
@@ -65,13 +59,18 @@ class WalkScore:
         request.add_header('If-None-Match', first.headers.get('ETag'))
         request.add_header('If-Modified-Since', first.headers.get('Date'))
 
-        response = opener.open(request)
+        return opener.open(request)
 
-        # some error handling
-        responseStatusCode = response.getcode()
+class WalkScore(ApiBase):
+    apiUrl = 'http://api.walkscore.com/score?format'
 
-        # jsonify response
-        jsonResp = json.load(response)
+    def __init__(self, apiKey, format = 'json'):
+        self.apiKey = apiKey
+        self.format = format
+
+    def makeRequest(self, address, lat = '', long = ''):
+        url = '%s=%s&%s&lat=%s&lon=%s&wsapikey=%s' % (self.apiUrl, self.format, urllib.urlencode({'address': address}), lat, long, self.apiKey)
+        jsonResp = self._makeRequest(url)
         jsonRespStatusCode = jsonResp['status']
 
         # Error handling
@@ -98,7 +97,7 @@ class WalkScore:
 
 import urllib
 
-class TransitScore:
+class TransitScore(ApiBase):
     # Transit score API prefix
     apiUrl = 'http://transit.walkscore.com/transit/%s/?'
 
@@ -123,18 +122,9 @@ class TransitScore:
         url = self.apiUrl % api_map[call_name]
         params.update({'wsapikey':self.apiKey})
         url_params = urllib.urlencode(params)
+        url = url + url_params
 
-        request = urllib2.Request(url + url_params)
-        opener = urllib2.build_opener(DefaultErrorHandler())
-        first = opener.open(request)
-
-        first_datastream = first.read()
-
-        # Append caching headers
-        request.add_header('If-None-Match', first.headers.get('ETag'))
-        request.add_header('If-Modified-Since', first.headers.get('Date'))
-
-        response = opener.open(request)
+        response = self._makeRequest(url)
 
         # jsonify response
         jsonResp = json.load(response)
