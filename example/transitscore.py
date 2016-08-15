@@ -12,14 +12,14 @@ def main():
         'state': 'WA'
     }
 
-    print transitscore.makeRequest('score', params)
+    print(transitscore.makeRequest('score', params))
 
-    network_parmas = {
+    network_params = {
         'lat': '47.6101359',
         'lon': '-122.3420567'
     }
 
-    print transitscore.makeRequest('network_search', network_parmas)
+    print(transitscore.makeRequest('network_search', network_params))
 
 if __name__ == '__main__':
     main()

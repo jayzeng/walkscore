@@ -1,5 +1,5 @@
-import urllib2
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 try:
     import simplejson as json
 except ImportError:
@@ -8,9 +8,9 @@ except ImportError:
 """
 Error handler
 """
-class DefaultErrorHandler(urllib2.HTTPDefaultErrorHandler):
+class DefaultErrorHandler(urllib.request.HTTPDefaultErrorHandler):
     def http_error_default(self, req, fp, code, msg, headers):
-        result = urllib2.HTTPError(
+        result = urllib.error.HTTPError(
             req.get_full_url(), code, msg, headers, fp)
         result.status = code
         return result
@@ -22,7 +22,7 @@ class BaseException(Exception):
 class InvalidApiKeyException(BaseException):
     pass
 
-class InvalidLatLongException(BaseException):
+class InvalidLatLonException(BaseException):
     pass
 
 class InvalidApiResponseException(BaseException):
@@ -55,14 +55,15 @@ class IpBlockedException(BaseException):
 
 class ApiBase:
     def _makeRequest(self, url):
-        request = urllib2.Request(url)
-        opener = urllib2.build_opener(DefaultErrorHandler())
+        request = urllib.request.Request(url)
+        opener = urllib.request.build_opener(DefaultErrorHandler())
         first = opener.open(request)
 
         first_datastream = first.read()
 
         # Append caching headers
-        request.add_header('If-None-Match', first.headers.get('ETag'))
+        if first.headers.get('ETag'):
+            request.add_header('If-None-Match', first.headers.get('ETag'))
         request.add_header('If-Modified-Since', first.headers.get('Date'))
 
         response = opener.open(request)
@@ -78,9 +79,12 @@ class WalkScore(ApiBase):
         self.apiKey = apiKey
         self.format = format
 
-    def makeRequest(self, address, lat = '', long = ''):
-        url = '%s=%s&%s&lat=%s&lon=%s&wsapikey=%s' % (self.apiUrl, self.format, urllib.urlencode({'address': address}), lat, long, self.apiKey)
-        jsonResp, responseStatusCode = self._makeRequest(url)
+    def makeRequest(self, address, lat = '', lon = ''):
+        url = '%s=%s&%s&lat=%s&lon=%s&wsapikey=%s' % (self.apiUrl, self.format, urllib.parse.urlencode({'address': address}), lat, lon, self.apiKey)
+
+        response, responseStatusCode = self._makeRequest(url)
+        # Jsonify
+        jsonResp = json.loads(response.read().decode('utf-8'))
         jsonRespStatusCode = jsonResp['status']
 
         # Error handling
@@ -98,14 +102,14 @@ class WalkScore(ApiBase):
             raise IpBlockedException(message="Your IP is blocked by WalkScore", raw=jsonResp, status_code=responseStatusCode)
 
         if responseStatusCode == 404 and jsonRespStatusCode == 30:
-            raise InvalidLatLongException(message="Invalid latitude and/or longitude", raw=jsonResp, status_code=responseStatusCode)
+            raise InvalidLatLonException(message="Invalid latitude and/or longitude", raw=jsonResp, status_code=responseStatusCode)
 
         if responseStatusCode == 500 and jsonRespStatusCode == 31:
             raise InternalServerException(message="Walk Score API internal error", raw=jsonResp, status_code=responseStatusCode)
 
         return jsonResp
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 class TransitScore(ApiBase):
     # Transit score API prefix
@@ -144,8 +148,8 @@ class TransitScore(ApiBase):
 
     def makeRequest(self, call_name, params):
         api_map = self.api_call_map()
-        if call_name not in api_map.keys():
-            raise InvalidApiCallException(message='Invalid API call %s. Available: %s' % (call_name, ','.join(api_map.keys())))
+        if call_name not in list(api_map.keys()):
+            raise InvalidApiCallException(message='Invalid API call %s. Available: %s' % (call_name, ','.join(list(api_map.keys()))))
 
         url = self.apiUrl % api_map[call_name]['route']
 
@@ -153,11 +157,11 @@ class TransitScore(ApiBase):
         param_keys = set(params.keys())
         required_params = set(api_map[call_name]['required'])
 
-        if param_keys != required_params:
+        if len(required_params - params.keys()) > 0:
             raise InvalidApiParamsException(message='Missing required param(s): %s' % ','.join(list(required_params - param_keys)))
 
         params.update({'wsapikey':self.apiKey})
-        url_params = urllib.urlencode(params)
+        url_params = urllib.parse.urlencode(params)
         url = url + url_params
 
         response, responseStatusCode = self._makeRequest(url)
@@ -166,6 +170,6 @@ class TransitScore(ApiBase):
             raise InvalidApiResponseException(message="API response error", raw=jsonResp, status_code=responseStatusCode)
 
         # jsonify response
-        jsonResp = json.load(response)
+        jsonResp = json.loads(response.read().decode('utf-8'))
 
         return jsonResp

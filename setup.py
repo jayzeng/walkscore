@@ -1,7 +1,7 @@
 from distutils.core import setup
 from setuptools import find_packages
 
-version = '0.2.2'
+version = '0.2.3'
 setup(
   name = 'walkscore-api-binding',
   version = version,
@@ -22,7 +22,8 @@ setup(
       "Programming Language :: Python",
       "Topic :: Scientific/Engineering :: GIS",
       "Topic :: Software Development :: Libraries :: Python Modules",
-      "Programming Language :: Python :: 2",
-      "Programming Language :: Python :: 3",
+      "Programming Language :: Python :: 3 :: Only",
   ],
+  test_suite='nose.collector',
+  tests_require=['nose'],
 )
